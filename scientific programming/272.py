@@ -1,72 +1,54 @@
 def common_tc_dates(cyclone_dates_1: list[str], cyclone_dates_2: list[str]) -> dict:
-    # Анализирует повторяемость дней года для двух наборов дат циклонов.
-    def parse_date(date_str):
-        # Извлекает день и месяц из строки даты, игнорируя год.
-        try:
-            # Убираем пробелы и разбиваем по '/'
-            parts = date_str.strip().split('/')
-            if len(parts) != 3:
-                return None
+    # количество дней в каждом месяце (без високосных)
+    days_in_month = [31, 28, 31, 30, 31, 30,
+                     31, 31, 30, 31, 30, 31]
+    # префиксные суммы для перевода (месяц-1 -> смещение)
+    prefix = [0]
+    for d in days_in_month:
+        prefix.append(prefix[-1] + d)
 
+    def parse_date(s: str):
+        s = s.strip()
+        parts = s.split("/")
+        if len(parts) != 3:
+            return None
+        try:
             day = int(parts[0].strip())
             month = int(parts[1].strip())
             year = int(parts[2].strip())
-
-            # Проверяем корректность года (1982-2022)
-            if year < 1982 or year > 2022:
-                return None
-
-            # Проверяем корректность дня и месяца
-            if month < 1 or month > 12 or day < 1 or day > 31:
-                return None
-
-            # Проверяем конкретные ограничения по дням в месяцах
-            if month in [4, 6, 9, 11] and day > 30:
-                return None
-            if month == 2 and day > 28: # 29 февраля не существует по условию
-                return None
-
-            return (month, day)
-
-        except (ValueError, AttributeError):
+        except ValueError:
             return None
+        # проверка диапазонов
+        if not (1982 <= year <= 2022):
+            return None
+        if not (1 <= month <= 12):
+            return None
+        if not (1 <= day <= days_in_month[month - 1]):
+            return None
+        # перевод в день года
+        return prefix[month - 1] + day
 
-    # Множества для уникальных дней года (игнорируя год)
-    days_set_1 = set()
-    days_set_2 = set()
+    def extract_days(dates):
+        days = set()
+        for d in dates:
+            day_of_year = parse_date(d)
+            if day_of_year is not None:
+                days.add(day_of_year)
+        return days
 
-    # Обрабатываем первый набор дат
-    for date_str in cyclone_dates_1:
-        day_month = parse_date(date_str)
-        if day_month:
-            days_set_1.add(day_month)
+    set1 = extract_days(cyclone_dates_1)
+    set2 = extract_days(cyclone_dates_2)
 
-    # Обрабатываем второй набор дат
-    for date_str in cyclone_dates_2:
-        day_month = parse_date(date_str)
-        if day_month:
-            days_set_2.add(day_month)
-
-    # Вычисляем различные множества
-    both_days = days_set_1 & days_set_2 # Пересечение
-    only_first_days = days_set_1 - days_set_2 # Только в первом
-    only_second_days = days_set_2 - days_set_1 # Только во втором
-    any_days = days_set_1 | days_set_2 # Объединение
-
-    # Подсчитываем результаты
-    total_days_in_year = 365
+    both = set1 & set2
+    only1 = set1 - set2
+    only2 = set2 - set1
+    anyd = set1 | set2
 
     return {
-    "any_year": len(any_days),
-    "both_years": len(both_days),
-    "only_one_year": len(only_first_days) + len(only_second_days),
-    "only_first_year": len(only_first_days),
-    "only_second_year": len(only_second_days),
-    "none_of_years": total_days_in_year - len(any_days)
+        "any_year": len(anyd),
+        "both_years": len(both),
+        "only_one_year": len(only1) + len(only2),
+        "only_first_year": len(only1),
+        "only_second_year": len(only2),
+        "none_of_years": 365 - len(anyd),
     }
-
-
-cyclone_dates_1 = ["04/01/2014", "05/01/2014"]
-cyclone_dates_2 = ["06/01/2015", "04/01/2016"]
-
-print(common_tc_dates(cyclone_dates_1, cyclone_dates_1))
