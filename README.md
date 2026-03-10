@@ -7,7 +7,7 @@
 
 # Cource workshops:
 
-1. [Homework №1]()
-2. [Homework №2]()
-3. [Homework №3]()
-4. [Final task]()
+1. [Homework №1](https://github.com/ouvwte/scientific-programming/blob/main/SP_DZ_1_Brunov.ipynb)
+2. [Homework №2](https://github.com/ouvwte/scientific-programming/blob/main/SP_DZ_2_Brunov.ipynb)
+3. [Homework №3](https://github.com/ouvwte/scientific-programming/blob/main/SP_DZ_3_Brunov.ipynb)
+4. [Final task](https://github.com/ouvwte/scientific-programming/blob/main/SP_ITOG_Brunov.ipynb)
